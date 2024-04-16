@@ -12,36 +12,19 @@ const boardManger = function () {
       board.push(row);
     }
   };
-  return { createBoard, board };
-};
-
-const gameManager = () => {
-  //create the game with this
-  const startGame = (player1 = "user", player2 = "computer") => {
-    let players = createPlayers(player1, player2);
-    let board = boardManger();
-    board.createBoard();
-
-    for (let row of board.board) {
-      for (let cell of row) {
-        cell.value = "X";
-      }
-    }
-    if (isFull(board.board)) {
-      let result = checkWinner(
-        players.nameToSymbol.player1,
-        players.nameToSymbol.player2,
-        board.board
-      );
-      console.log(result);
-      console.log("Winner is", players.symbolToName[result]);
-    }
-  };
-
   //check if the board is full
   const isFull = (board) => {
     return board.every((row) => row.every((cell) => cell.value !== null));
   };
+  //update board
+  //update the board
+  const updateBoard = (token, coordinate, board) => {
+    board[coordinate[0]][coordinate[1]].value = token;
+  };
+  return { createBoard, board, isFull, updateBoard };
+};
+
+const gameManager = () => {
   //check for winner
   const checkWinner = (token1, token2, board) => {
     const checkLine = (line) =>
@@ -71,13 +54,9 @@ const gameManager = () => {
       return "Tie";
     }
 
-    return null;
+    return false;
   };
 
-  //update the board
-  const updateBoard = (token, coordinate, board) => {
-    board[coordinate[0]][coordinate[1]].value = token;
-  };
   //creating players and assigning tokens directly
   const createPlayers = (player1 = "player1", player2 = "player2") => {
     const players = {
@@ -97,9 +76,7 @@ const gameManager = () => {
 
   //return the function
   return {
-    startGame,
+    createPlayers,
+    checkWinner,
   };
 };
-
-let game = gameManager();
-game.startGame("KUKU", "KIKI");
