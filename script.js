@@ -172,7 +172,7 @@ const UIManager = ((document) => {
     player2.setAttribute("name", "player2");
 
     //Buttons container
-    let sp_container = createElement("div", "sp_container");
+    let sp_container = createElement("div", "sp-container");
 
     let submitBtn = createElement("input", "name-submit-button");
     submitBtn.setAttribute("type", "submit");
@@ -183,6 +183,7 @@ const UIManager = ((document) => {
     new_game.value = "New Game";
 
     form.addEventListener("submit", startTheGame);
+    new_game.addEventListener("click", restartGame);
 
     sp_container.appendChild(submitBtn);
     sp_container.appendChild(new_game);
@@ -199,8 +200,15 @@ const UIManager = ((document) => {
     const board = createBoardUI();
     container.appendChild(board);
   };
-  //click callback
-
+  //newGame callBack
+  const restartGame = () => {
+    let boardHTML = document.querySelector(".board");
+    if (boardHTML) {
+      boardHTML.remove();
+      startUI();
+    }
+  };
+  //board callback
   const cellsClicked = (e) => {
     let element = e.target;
     let coordinate = element.value.match(/\d+/g);
@@ -247,6 +255,7 @@ const UIManager = ((document) => {
       }
       board.appendChild(boardRow);
     }
+
     return board;
   };
   //create basic layout
