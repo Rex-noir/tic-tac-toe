@@ -135,11 +135,59 @@ input[type="text"]:focus {
   font-family: var(--Platpyi--font);
   font-weight: 900;
   text-align: center;
-  font-size: 1.4rem;
+  font-size: 3rem;
 }
 .cell:disabled {
   background-color: teal;
   color: black;
+}
+/* Dialog */
+dialog {
+  width: 17rem;
+  border-top: double 5px red;
+  border-left: double 5px green;
+  border-right: double 5px blue;
+  border-bottom: double 5px yellow;
+  border-radius: 10px;
+  box-shadow: var(--board-shadow);
+  display: flex;
+  flex-direction: column;
+  gap: 0.4rem;
+  background-color: var(--secondary-color);
+}
+dialog h3 {
+  font-family: var(--Platpyi--font);
+  margin: 0;
+  padding: 0;
+  text-align: center;
+}
+dialog::backdrop {
+  background: rgba(0, 0, 0, 0.5);
+  backdrop-filter: blur(5px);
+}
+.dialog-message {
+  font-family: var(--Teko--font);
+  font-size: 1.5rem;
+  text-align: justify;
+}
+.button-container {
+  margin: auto;
+  justify-self: flex-end;
+  display: flex;
+  gap: 10px;
+}
+dialog button {
+  padding: 7px;
+  border-radius: 10px;
+  border-left: red solid;
+  border-right: blue solid;
+  border-top: green solid;
+  border-bottom: yellow solid;
+}
+dialog button:focus {
+  outline: none;
+  background-color: var(--primary-color);
+  animation: pulse 0.7s ease-in-out infinite alternate; /* Animation & looping */
 }
 /*key frames */
 
