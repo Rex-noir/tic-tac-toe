@@ -146,6 +146,8 @@ const UIManager = ((document) => {
     let player2 = createElement("input", "player-name", "player2-name");
     player1.setAttribute("type", "text");
     player2.setAttribute("type", "text");
+    player1.setAttribute("maxlength", "12");
+    player2.setAttribute("maxlength", "12");
 
     player1.setAttribute("value", "Player1");
     player2.setAttribute("value", "Player2");
@@ -214,7 +216,6 @@ const UIManager = ((document) => {
         boardCells.addEventListener("click", cellsClicked);
         //give the value address of each button on the board
         boardCells.value = `[${i}][${j}]`;
-        boardCells.textContent = "BUU";
         boardRow.appendChild(boardCells);
       }
       board.appendChild(boardRow);
