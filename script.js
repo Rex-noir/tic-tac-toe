@@ -27,34 +27,42 @@ const boardManger = function () {
 const gameManager = () => {
   //check for winner
   const checkWinner = (token1, token2, board) => {
-    const checkLine = (line) =>
-      line.every((cell) => cell.value === token1 || cell.value === token2);
+    const checkLine = (line) => {
+      const firstValue = line[0].value;
+      if (firstValue == null) return false;
+      return line.every((cell) => cell.value === firstValue);
+    };
 
-    //for each row
-    for (const row of board) {
+    //for row
+    for (let row of board) {
       if (checkLine(row)) {
         return row[0].value;
       }
-    }
-    //for column
-    for (let col = 0; col < board.length; col++) {
-      const column = board.map((row) => row[col]);
-      if (checkLine(column)) {
-        return column[0].value;
+      //for column
+      else {
+        for (let i = 0; i < board.length; i++) {
+          let column = [];
+          for (let j = 0; j < board.length; j++) {
+            column.push(board[j][i]);
+          }
+          if (checkLine(column)) {
+            return column[0].value;
+          }
+        }
       }
     }
+    // Check diagonals
+    const diagonals = [
+      [board[0][0], board[1][1], board[2][2]],
+      [board[0][2], board[1][1], board[2][0]],
+    ];
 
-    //for diagonally
-    const diagonal1 = [board[0][0], board[1][1], board[2][2]];
-    const diagonal2 = [board[0][2], board[1][1], board[2][0]];
-
-    if (checkLine(diagonal1)) return diagonal1[0].value;
-    else if (checkLine(diagonal2)) return diagonal2[0].value;
-
-    //check for tie
-    if (board.every((row) => row.every((cell) => cell.value !== null))) {
-      return "Tie";
+    for (const diagonal of diagonals) {
+      if (checkLine(diagonal)) return diagonal[0].value;
     }
+
+    // Check for tie
+    if (board.flat().every((cell) => cell.value !== null)) return "Tie";
 
     return false;
   };
@@ -98,7 +106,7 @@ const UIManager = ((document) => {
     let player2 = form.get("player2");
     let btn = document.querySelector(".name-submit-button");
     if (player1 == "" || player2 == "") {
-      showMessage("Please don't leave the name fields blank!");
+      showMessage("Please don't leave the name fields blank!", "error");
     } else {
       users = game.createPlayers(player1, player2);
       startUI();
@@ -106,26 +114,35 @@ const UIManager = ((document) => {
     }
   };
   //create the dialog to show message
-  const showMessage = (message) => {
+  const showMessage = (message, types) => {
     let dialog = createElement("dialog", "dialog");
     let title = createElement("h3");
-    let msg = createElement("span");
-    let close = createElement("button", "close-dialog");
+    let msg = createElement("span", "dialog-message");
+    let newGame = createElement("button", "close-dialog");
+    let viewboard = createElement("button", "view");
+    let button_container = createElement("div", "button-container");
 
-    close.textContent = "Close";
+    newGame.textContent = "Reload";
+    if ((types = "error")) viewboard.textContent = "Okay";
+    else viewboard.textContent = "View Board";
+
     title.textContent = "Notice!";
     msg.textContent = message;
 
-    close.addEventListener("click", (e) => {
-      dialog.close();
-      if (message !== "Please don't leave the name fields blank!") {
-        window.location.reload();
-      }
+    button_container.appendChild(newGame);
+    button_container.appendChild(viewboard);
+
+    newGame.addEventListener("click", (e) => {
+      window.location.reload();
     });
 
+    viewboard.addEventListener("click", (e) => {
+      dialog.style.display = "none";
+      dialog.close();
+    });
     dialog.appendChild(title);
     dialog.appendChild(msg);
-    dialog.append(close);
+    dialog.append(button_container);
     container.appendChild(dialog);
     dialog.showModal();
   };
@@ -149,8 +166,8 @@ const UIManager = ((document) => {
     player1.setAttribute("maxlength", "12");
     player2.setAttribute("maxlength", "12");
 
-    player1.setAttribute("value", "Player1");
-    player2.setAttribute("value", "Player2");
+    player1.setAttribute("placeholder", "Player1 Name");
+    player2.setAttribute("placeholder", "Player2 Name");
     player1.setAttribute("name", "player1");
     player2.setAttribute("name", "player2");
 
@@ -170,7 +187,6 @@ const UIManager = ((document) => {
   };
   //start building the UI
   const startUI = () => {
-    console.log(users);
     const board = createBoardUI();
     container.appendChild(board);
   };
@@ -183,15 +199,17 @@ const UIManager = ((document) => {
     element.textContent = active;
     board.updateBoard(active, coordinate, boardJS);
     element.disabled = true;
+    let allbutton = document.querySelectorAll(".board button");
     //Change turns
-
-    let winner = game.checkWinner("X", "0", boardJS);
+    let winner = game.checkWinner("X", "O", boardJS);
     if (winner) {
       if (winner == "X" || winner == "O") {
-        winner = `Congratulations! \n ${users.symbolToName[winner]} wins!!`;
+        winner = `Winner is \n ${users.symbolToName[winner]} !!`;
+        allbutton.forEach((e) => {
+          e.disabled = true;
+        });
       }
       showMessage(`${winner}`);
-      console.log("Helll");
     }
     changeActive();
   };
