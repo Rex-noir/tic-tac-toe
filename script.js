@@ -171,17 +171,26 @@ const UIManager = ((document) => {
     player1.setAttribute("name", "player1");
     player2.setAttribute("name", "player2");
 
+    //Buttons container
+    let sp_container = createElement("div", "sp_container");
+
     let submitBtn = createElement("input", "name-submit-button");
     submitBtn.setAttribute("type", "submit");
     submitBtn.value = "Start";
 
+    let new_game = createElement("input", "new-game");
+    new_game.setAttribute("type", "button");
+    new_game.value = "New Game";
+
     form.addEventListener("submit", startTheGame);
 
+    sp_container.appendChild(submitBtn);
+    sp_container.appendChild(new_game);
     form.appendChild(player1Label);
     form.appendChild(player1);
     form.appendChild(player2Label);
     form.appendChild(player2);
-    form.appendChild(submitBtn);
+    form.appendChild(sp_container);
     input_container.appendChild(form);
     container.appendChild(input_container);
   };
