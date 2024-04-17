@@ -106,8 +106,13 @@ const UIManager = ((document) => {
     let player1 = form.get("player1");
     let player2 = form.get("player2");
     let btn = document.querySelector(".name-submit-button");
-    if (player1 == "" || player2 == "") {
+
+    //if it is not computer mode
+    if (!computerMode && (player1 == "" || player2 == "")) {
       showMessage("Please don't leave the name fields blank!", "error");
+    } else if (computerMode && player1 == "") {
+      //if it is computer mode
+      showMessage("Please enter your name", "error");
     } else {
       users = game.createPlayers(player1, player2);
       appendBoardUI();
@@ -211,7 +216,13 @@ const UIManager = ((document) => {
       player1.setAttribute("placeholder", "Player1 Name");
       player1Label.textContent = "Player1";
     };
-    return { computerMode, playerMode };
+    const newGameMode = () => {
+      submitBtn.disabled = false;
+      new_game.disabled = false;
+      player1.value = "";
+      player2.value = "";
+    };
+    return { computerMode, playerMode, newGameMode };
   };
   //start building the UI
   const appendBoardUI = () => {
@@ -223,7 +234,7 @@ const UIManager = ((document) => {
     let boardHTML = document.querySelector(".board");
     if (boardHTML) {
       boardHTML.remove();
-      appendBoardUI();
+      inputUI.newGameMode();
     }
   };
   //board callback
