@@ -110,7 +110,7 @@ const UIManager = ((document) => {
       showMessage("Please don't leave the name fields blank!", "error");
     } else {
       users = game.createPlayers(player1, player2);
-      startUI();
+      appendBoardUI();
       btn.disabled = true;
     }
   };
@@ -151,7 +151,7 @@ const UIManager = ((document) => {
     dialog.showModal();
   };
   //require for inputs first
-  const setUp = () => {
+  const inputUIManger = () => {
     let input_container = createElement("div", "input-container");
     let form = createElement("form", "users-form");
 
@@ -198,10 +198,23 @@ const UIManager = ((document) => {
     form.appendChild(sp_container);
     input_container.appendChild(form);
     container.appendChild(input_container);
-    document.body.appendChild(layout.wrapper);
+
+    const computerMode = () => {
+      player2.style.display = "none";
+      player2Label.style.display = "none";
+      player1Label.textContent = "Username";
+      player1.setAttribute("placeholder", "Enter your username");
+    };
+    const playerMode = () => {
+      player2.style.display = "inline-block";
+      player2Label.style.display = "inline";
+      player1.setAttribute("placeholder", "Player1 Name");
+      player1Label.textContent = "Player1";
+    };
+    return { computerMode, playerMode };
   };
   //start building the UI
-  const startUI = () => {
+  const appendBoardUI = () => {
     const board = createBoardUI();
     container.appendChild(board);
   };
@@ -210,7 +223,7 @@ const UIManager = ((document) => {
     let boardHTML = document.querySelector(".board");
     if (boardHTML) {
       boardHTML.remove();
-      startUI();
+      appendBoardUI();
     }
   };
   //board callback
@@ -279,6 +292,33 @@ const UIManager = ((document) => {
       container,
     };
   };
+  //add options how to play
+  const addOptions = (container) => {
+    let div = createElement("div", "options-container");
+    let twoPlayers = createElement("button", "two-players");
+    let computer = createElement("button", "computer");
+
+    twoPlayers.classList.add("selected");
+
+    twoPlayers.textContent = "2 Players";
+    computer.textContent = "Computer";
+    //event listener
+    twoPlayers.addEventListener("click", (e) => {
+      twoPlayers.classList.add("selected");
+      computer.classList.remove("selected");
+      computerMode = false;
+      inputUI.playerMode();
+    });
+    computer.addEventListener("click", (e) => {
+      twoPlayers.classList.remove("selected");
+      computer.classList.add("selected");
+      computerMode = true;
+      inputUI.computerMode();
+    });
+    div.appendChild(twoPlayers);
+    div.appendChild(computer);
+    container.appendChild(div);
+  };
   //createELemet easy path
   const createElement = (tag = "div", Class, id) => {
     let element = document.createElement(tag);
@@ -287,15 +327,20 @@ const UIManager = ((document) => {
     return element;
   };
   //Create The Game Here
+  let computerMode = false;
   let layout = createLayout("wrapper");
   let container = layout.container;
+  addOptions(container);
+  let inputUI = inputUIManger();
+
+  document.body.appendChild(layout.wrapper);
+
   return {
-    setUp,
-    startUI,
+    inputUIManger,
+    appendBoardUI,
     createLayout,
     createElement,
   };
 })(document || documentMock);
 
 let ui = UIManager;
-ui.setUp();
