@@ -117,6 +117,7 @@ const UIManager = ((document) => {
       users = game.createPlayers(player1, player2);
       appendBoardUI();
       btn.disabled = true;
+      console.log(player2);
     }
   };
   //create the dialog to show message
@@ -209,6 +210,7 @@ const UIManager = ((document) => {
       player2Label.style.display = "none";
       player1Label.textContent = "Username";
       player1.setAttribute("placeholder", "Enter your username");
+      player2.value = "Computer";
     };
     const playerMode = () => {
       player2.style.display = "inline-block";
@@ -251,7 +253,11 @@ const UIManager = ((document) => {
     board.updateBoard(active, coordinate, boardJS);
     element.disabled = true;
     let allbutton = document.querySelectorAll(".board button");
+
     //Change turns
+    changeActive();
+
+    //check for winner
     let winner = game.checkWinner("X", "O", boardJS);
     if (winner) {
       if (winner == "X" || winner == "O") {
@@ -262,7 +268,6 @@ const UIManager = ((document) => {
       }
       showMessage(`${winner}`);
     }
-    changeActive();
   };
   //changing turns fn
   const changeActive = () => {
