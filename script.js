@@ -96,6 +96,7 @@ const documentMock = (() => ({
 }))();
 
 //UI Manager
+let game = gameManager();
 const UIManager = ((document) => {
   let users;
   //callback for the form
@@ -122,22 +123,25 @@ const UIManager = ((document) => {
     let viewboard = createElement("button", "view");
     let button_container = createElement("div", "button-container");
 
-    newGame.textContent = "Reload";
-    if ((types = "error")) viewboard.textContent = "Okay";
-    else viewboard.textContent = "View Board";
+    button_container.appendChild(viewboard);
 
+    newGame.textContent = "NewGame";
+
+    if (types == "error") {
+      viewboard.textContent = "Okay";
+    } else if (!types) {
+      button_container.appendChild(newGame);
+      viewboard.textContent = "View Board";
+    }
     title.textContent = "Notice!";
     msg.textContent = message;
 
-    button_container.appendChild(newGame);
-    button_container.appendChild(viewboard);
-
     newGame.addEventListener("click", (e) => {
-      window.location.reload();
+      restartGame();
+      dialog.close();
     });
 
     viewboard.addEventListener("click", (e) => {
-      dialog.style.display = "none";
       dialog.close();
     });
     dialog.appendChild(title);
@@ -194,6 +198,7 @@ const UIManager = ((document) => {
     form.appendChild(sp_container);
     input_container.appendChild(form);
     container.appendChild(input_container);
+    document.body.appendChild(layout.wrapper);
   };
   //start building the UI
   const startUI = () => {
@@ -209,6 +214,11 @@ const UIManager = ((document) => {
     }
   };
   //board callback
+  let active = "X";
+  let board = boardManger();
+  board.createBoard();
+  let boardJS = board.board;
+
   const cellsClicked = (e) => {
     let element = e.target;
     let coordinate = element.value.match(/\d+/g);
@@ -239,8 +249,7 @@ const UIManager = ((document) => {
   };
   //create the board UI
   const createBoardUI = () => {
-    let boardJs = boardManger();
-    let grid = boardJs.grid;
+    let grid = 3;
     let board = createElement("div", "board");
     //make the buttons
     for (let i = 0; i < grid; i++) {
@@ -278,17 +287,8 @@ const UIManager = ((document) => {
     return element;
   };
   //Create The Game Here
-  let active = "X";
-  let board = boardManger();
-  board.createBoard();
-  let boardJS = board.board;
-
-  let game = gameManager();
-
   let layout = createLayout("wrapper");
   let container = layout.container;
-  document.body.appendChild(layout.wrapper);
-
   return {
     setUp,
     startUI,
