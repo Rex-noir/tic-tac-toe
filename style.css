@@ -37,14 +37,45 @@ body {
   display: grid;
   padding: 1rem;
   grid-template-columns: 1fr 1fr;
-  grid-template-rows: 1fr 1fr;
+  grid-template-rows: minmax(3rem, 0.5fr) 2fr 2fr;
   gap: 10px;
+  height: 100%;
 }
 
+/*Header Options*/
+.options-container {
+  outline: none;
+  grid-row: 1;
+  grid-column: 1 / span 2;
+  display: flex;
+  justify-content: space-between;
+  align-items: stretch;
+  gap: 2px;
+  border-radius: 10px;
+  box-shadow: var(--board-shadow);
+  border-bottom: 4px solid var(--third-color);
+}
+.options-container button {
+  width: 100%;
+  font-family: var(--Teko--font);
+  font-size: 2rem;
+  transition: background-color 0.3s ease; /* Smooth transition over 0.3 seconds */
+  color: black;
+}
+.options-container button:hover {
+  background-color: #3e8e41; /* Hover background color */
+  color: wheat;
+}
+.options-container button:active {
+  animation: bounce 1.8s ease-in-out infinite alternate; /* Animation name, duration, and timing */
+}
+.selected {
+  background-color: var(--primary-color);
+}
 /* Form */
 .input-container {
   grid-column: 1 / span 2;
-  grid-row: 1;
+  grid-row: 2;
   place-self: center;
   background-color: var(--secondary-color);
   border-radius: 10px;
@@ -113,7 +144,7 @@ input[type="text"]:focus {
 
 /* Board */
 .board {
-  grid-row: 2;
+  grid-row: 3;
   grid-column: 1 / span 2;
   place-self: center;
   animation: bounce 1.8s ease-in-out infinite alternate; /* Animation name, duration, and timing */
