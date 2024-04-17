@@ -240,11 +240,6 @@ const UIManager = ((document) => {
     }
     return board;
   };
-  //add titles and form
-  const addTitles = (titles, container) => {
-    let title = createElement("span", "title");
-    container.appendChild(title);
-  };
   //create basic layout
   const createLayout = (className, id) => {
     let wrapper = createElement("div");
