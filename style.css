@@ -150,7 +150,6 @@ dialog {
   border-bottom: double 5px yellow;
   border-radius: 10px;
   box-shadow: var(--board-shadow);
-  display: flex;
   flex-direction: column;
   gap: 0.4rem;
   background-color: var(--secondary-color);
@@ -172,17 +171,17 @@ dialog::backdrop {
 }
 .button-container {
   margin: auto;
-  justify-self: flex-end;
   display: flex;
   gap: 10px;
+  justify-content: space-between;
 }
 dialog button {
   padding: 7px;
   border-radius: 10px;
   border-left: red solid;
-  border-right: blue solid;
-  border-top: green solid;
-  border-bottom: yellow solid;
+  border-top: blue solid;
+  border-bottom: green solid;
+  border-right: rgb(238, 0, 255) solid;
 }
 dialog button:focus {
   outline: none;
