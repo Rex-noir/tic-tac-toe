@@ -16,12 +16,18 @@ const boardManger = function () {
   const isFull = (board) => {
     return board.every((row) => row.every((cell) => cell.value !== null));
   };
-  //update board
   //update the board
   const updateBoard = (token, coordinate, board) => {
     board[coordinate[0]][coordinate[1]].value = token;
   };
-  return { grid, createBoard, board, isFull, updateBoard };
+  //get empty cells
+  const checkEmpty = (coordinate, board) => {
+    if (!board[coordinate[0]][coordinate[1]].value) {
+      return true;
+    }
+    return false;
+  };
+  return { grid, createBoard, board, isFull, updateBoard, checkEmpty };
 };
 
 const gameManager = () => {
@@ -117,7 +123,6 @@ const UIManager = ((document) => {
       users = game.createPlayers(player1, player2);
       appendBoardUI();
       btn.disabled = true;
-      console.log(player2);
     }
   };
   //create the dialog to show message
@@ -220,6 +225,7 @@ const UIManager = ((document) => {
       player2.value = "";
     };
     const newGameMode = () => {
+      restartGame();
       submitBtn.disabled = false;
       new_game.disabled = false;
       player1.value = "";
@@ -245,7 +251,6 @@ const UIManager = ((document) => {
   let board = boardManger();
   board.createBoard();
   let boardJS = board.board;
-  let allbutton = document.querySelectorAll(".board button");
 
   const cellsClicked = (e) => {
     let element = e.target;
@@ -255,6 +260,9 @@ const UIManager = ((document) => {
     board.updateBoard(active, coordinate, boardJS);
     element.disabled = true;
 
+    console.log(getEmptyCells(boardJS));
+
+    //get empty cells list
     //Change turns
     changeActive();
 
@@ -262,12 +270,25 @@ const UIManager = ((document) => {
     if (game.checkWinner("X", "O", boardJS))
       printResult(game.checkWinner("X", "O", boardJS));
   };
+  //get empty cells list
+  const getEmptyCells = function (inputBoard) {
+    let cells = [];
+    let allbutton = document.querySelectorAll(".board button");
+    allbutton.forEach((element) => {
+      let coordinate = element.value.match(/\d+/g);
+      if (board.checkEmpty(coordinate, inputBoard)) {
+        cells.push(coordinate);
+      }
+    });
+    return cells;
+  };
   //do the result
   const printResult = (winner) => {
+    let btnall = document.querySelectorAll(".board button");
     if (winner == "X" || winner == "O") {
-      let message = `Winner is ${users.symbolToName[winner]}.`;
+      let message = `Winner  is ${users.symbolToName[winner]}.`;
       showMessage(message);
-      allbutton.forEach((e) => {
+      btnall.forEach((e) => {
         e.disabled = true;
       });
     }
@@ -327,12 +348,14 @@ const UIManager = ((document) => {
       computer.classList.remove("selected");
       computerMode = false;
       inputUI.playerMode();
+      inputUI.newGameMode();
     });
     computer.addEventListener("click", (e) => {
       twoPlayers.classList.remove("selected");
       computer.classList.add("selected");
       computerMode = true;
       inputUI.computerMode();
+      inputUI.newGameMode();
     });
     div.appendChild(twoPlayers);
     div.appendChild(computer);
