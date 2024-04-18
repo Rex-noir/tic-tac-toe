@@ -217,6 +217,7 @@ const UIManager = ((document) => {
       player2Label.style.display = "inline";
       player1.setAttribute("placeholder", "Player1 Name");
       player1Label.textContent = "Player1";
+      player2.value = "";
     };
     const newGameMode = () => {
       submitBtn.disabled = false;
