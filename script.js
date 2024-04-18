@@ -16,17 +16,13 @@ const boardManger = function () {
   const isFull = (board) => {
     return board.every((row) => row.every((cell) => cell.value !== null));
   };
-  //update the board
-  const updateBoard = (token, coordinate, board) => {
-    board[coordinate[0]][coordinate[1]].value = token;
-  };
   //get empty cells list
   const getEmptyCells = function (inputBoard) {
     let cells = [];
     let allbutton = document.querySelectorAll(".board button");
     allbutton.forEach((element) => {
       let coordinate = element.value.match(/\d+/g);
-      if (board.checkEmpty(coordinate, inputBoard)) {
+      if (checkEmpty(coordinate, inputBoard)) {
         cells.push(coordinate);
       }
     });
@@ -39,14 +35,19 @@ const boardManger = function () {
     }
     return false;
   };
+  //delete the board
+  const deleteBoard = (board) => {
+    board = null;
+  };
+  //return
   return {
     grid,
     createBoard,
     board,
     isFull,
-    updateBoard,
     checkEmpty,
     getEmptyCells,
+    deleteBoard,
   };
 };
 
@@ -111,19 +112,22 @@ const gameManager = () => {
   };
 
   //Implementing AI
+  const MAX_DEPTH = 10;
   const minMax = (maxiMize, depth, board, boardManager) => {
     const winner = checkWinner("X", "O", board); //check for winning cases
     let bestMoveRow = null;
     let bestMoveCol = null;
+    const tempboard = [...board];
+
     //base case
-    if (boardManager.isFull(board) || winner) {
+    if (boardManager.isFull(tempboard) || winner || depth === MAX_DEPTH) {
       if (winner == "O") {
-        let score = maxiMize ? 10 : -10;
+        let score = maxiMize ? +1 : -1;
         return score;
       } else if (winner == "Tie") {
         return 0;
       } else {
-        let score = maxiMize ? -10 : 10;
+        let score = maxiMize ? -1 : +1;
         return score;
       }
     }
@@ -132,8 +136,7 @@ const gameManager = () => {
 
     for (let emptycells of emptyCells) {
       const [row, col] = emptycells;
-      const tempboard = [...board];
-      tempboard[row][col] = maxiMize ? "O" : "X";
+      tempboard[row][col].value = maxiMize ? "O" : "X";
 
       const score = minMax(!maxiMize, depth + 1, tempboard, boardManager);
       if (maxiMize && score > bestscore) {
@@ -149,8 +152,10 @@ const gameManager = () => {
     return [bestMoveRow, bestMoveCol];
   };
   const getTheNextMove = (active, depth = 0, board, boardManger) => {
-    const maxiMize = active == "O" ? true : false;
-    const bestMove = minMax(maxiMize, depth, board, boardManger);
+    const maxiMize = active == "X" ? true : false;
+    let tempboard = structuredClone(board);
+
+    const bestMove = minMax(maxiMize, depth, tempboard, boardManger);
     return bestMove;
   };
   //return the functions
@@ -309,6 +314,7 @@ const UIManager = ((document) => {
     if (boardHTML) {
       boardHTML.remove();
       inputUI.newGameMode();
+      board.deleteBoard(boardJS);
     }
   };
   //board callback
@@ -318,31 +324,59 @@ const UIManager = ((document) => {
   let boardJS = board.board;
 
   const cellsClicked = (e) => {
-    let element = e.target;
-    let coordinate = element.value.match(/\d+/g);
-    //update per click
-    element.textContent = active;
-    board.updateBoard(active, coordinate, boardJS);
-    element.disabled = true;
+    let btn = e.target;
+    let coordinate = btn.value.match(/\d+/g);
 
-    console.log(board.getEmptyCells(boardJS));
-
-    //Change turns
-    changeActive();
-
-    //check for winner
-    if (game.checkWinner("X", "O", boardJS))
-      printResult(game.checkWinner("X", "O", boardJS));
+    if (computerMode) {
+      if (active == "X") {
+        click(coordinate, active, btn);
+        changeActive();
+        computerMove();
+        changeActive();
+      }
+    } else {
+      //twoplayermode
+    }
+    console.log(boardJS);
+  };
+  const computerMove = () => {
+    let move = game.getTheNextMove(active, 0, boardJS, board);
+    const [row, col] = move;
+    click(move, active);
+    let btnall = document.querySelectorAll(".board button");
+    for (let btn of btnall) {
+      if (btn.value === `[${row}][${col}]`) {
+        btn.textContent = active;
+        btn.disabled = true;
+      }
+    }
+  };
+  const click = (coordinate, symbol, button) => {
+    if (button) {
+      button.textContent = active;
+      button.disabled = true;
+    }
+    let [row, col] = coordinate;
+    boardJS[row][col].value = symbol;
   };
   //do the result
-  const printResult = (winner) => {
+  const checkWinner = () => {
     let btnall = document.querySelectorAll(".board button");
-    if (winner == "X" || winner == "O") {
-      let message = `Winner  is ${users.symbolToName[winner]}.`;
-      showMessage(message);
+    let winner = game.checkWinner("X", "O", boardJS);
+    if (computerMode) {
+      if (winner == "X") {
+        showMessage("You Win!");
+      } else showMessage("You lose!");
       btnall.forEach((e) => {
         e.disabled = true;
       });
+    } else {
+      if (winner == "X" || winner == "O") {
+        showMessage(winner);
+        btnall.forEach((e) => {
+          e.disabled = true;
+        });
+      }
     }
   };
   //changing turns fn
