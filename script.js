@@ -245,6 +245,7 @@ const UIManager = ((document) => {
   let board = boardManger();
   board.createBoard();
   let boardJS = board.board;
+  let allbutton = document.querySelectorAll(".board button");
 
   const cellsClicked = (e) => {
     let element = e.target;
@@ -253,21 +254,22 @@ const UIManager = ((document) => {
     element.textContent = active;
     board.updateBoard(active, coordinate, boardJS);
     element.disabled = true;
-    let allbutton = document.querySelectorAll(".board button");
 
     //Change turns
     changeActive();
 
     //check for winner
-    let winner = game.checkWinner("X", "O", boardJS);
-    if (winner) {
-      if (winner == "X" || winner == "O") {
-        winner = `Winner is \n ${users.symbolToName[winner]} !!`;
-        allbutton.forEach((e) => {
-          e.disabled = true;
-        });
-      }
-      showMessage(`${winner}`);
+    if (game.checkWinner("X", "O", boardJS))
+      printResult(game.checkWinner("X", "O", boardJS));
+  };
+  //do the result
+  const printResult = (winner) => {
+    if (winner == "X" || winner == "O") {
+      let message = `Winner is ${users.symbolToName[winner]}.`;
+      showMessage(message);
+      allbutton.forEach((e) => {
+        e.disabled = true;
+      });
     }
   };
   //changing turns fn
