@@ -20,6 +20,18 @@ const boardManger = function () {
   const updateBoard = (token, coordinate, board) => {
     board[coordinate[0]][coordinate[1]].value = token;
   };
+  //get empty cells list
+  const getEmptyCells = function (inputBoard) {
+    let cells = [];
+    let allbutton = document.querySelectorAll(".board button");
+    allbutton.forEach((element) => {
+      let coordinate = element.value.match(/\d+/g);
+      if (board.checkEmpty(coordinate, inputBoard)) {
+        cells.push(coordinate);
+      }
+    });
+    return cells;
+  };
   //get empty cells
   const checkEmpty = (coordinate, board) => {
     if (!board[coordinate[0]][coordinate[1]].value) {
@@ -27,7 +39,15 @@ const boardManger = function () {
     }
     return false;
   };
-  return { grid, createBoard, board, isFull, updateBoard, checkEmpty };
+  return {
+    grid,
+    createBoard,
+    board,
+    isFull,
+    updateBoard,
+    checkEmpty,
+    getEmptyCells,
+  };
 };
 
 const gameManager = () => {
@@ -89,10 +109,55 @@ const gameManager = () => {
     };
     return players;
   };
-  //return the function
+
+  //Implementing AI
+  const minMax = (maxiMize, depth, board, boardManager) => {
+    const winner = checkWinner("X", "O", board); //check for winning cases
+    let bestMoveRow = null;
+    let bestMoveCol = null;
+    //base case
+    if (boardManager.isFull(board) || winner) {
+      if (winner == "O") {
+        let score = maxiMize ? 10 : -10;
+        return score;
+      } else if (winner == "Tie") {
+        return 0;
+      } else {
+        let score = maxiMize ? -10 : 10;
+        return score;
+      }
+    }
+    let emptyCells = boardManager.getEmptyCells(board);
+    let bestscore = maxiMize ? -Infinity : Infinity;
+
+    for (let emptycells of emptyCells) {
+      const [row, col] = emptycells;
+      const tempboard = [...board];
+      tempboard[row][col] = maxiMize ? "O" : "X";
+
+      const score = minMax(!maxiMize, depth + 1, tempboard, boardManager);
+      if (maxiMize && score > bestscore) {
+        bestscore = score;
+        bestMoveRow = row;
+        bestMoveCol = col;
+      } else if (!maxiMize && score < bestscore) {
+        bestscore = score;
+        bestMoveRow = row;
+        bestMoveCol = col;
+      }
+    }
+    return [bestMoveRow, bestMoveCol];
+  };
+  const getTheNextMove = (active, depth = 0, board, boardManger) => {
+    const maxiMize = active == "O" ? true : false;
+    const bestMove = minMax(maxiMize, depth, board, boardManger);
+    return bestMove;
+  };
+  //return the functions
   return {
     createPlayers,
     checkWinner,
+    getTheNextMove,
   };
 };
 
@@ -260,27 +325,14 @@ const UIManager = ((document) => {
     board.updateBoard(active, coordinate, boardJS);
     element.disabled = true;
 
-    console.log(getEmptyCells(boardJS));
+    console.log(board.getEmptyCells(boardJS));
 
-    //get empty cells list
     //Change turns
     changeActive();
 
     //check for winner
     if (game.checkWinner("X", "O", boardJS))
       printResult(game.checkWinner("X", "O", boardJS));
-  };
-  //get empty cells list
-  const getEmptyCells = function (inputBoard) {
-    let cells = [];
-    let allbutton = document.querySelectorAll(".board button");
-    allbutton.forEach((element) => {
-      let coordinate = element.value.match(/\d+/g);
-      if (board.checkEmpty(coordinate, inputBoard)) {
-        cells.push(coordinate);
-      }
-    });
-    return cells;
   };
   //do the result
   const printResult = (winner) => {
