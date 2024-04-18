@@ -2,7 +2,7 @@ const boardManger = function () {
   let board = [];
   let grid = 3;
 
-  let createBoard = () => {
+  const createBoard = () => {
     for (let i = 0; i < grid; i++) {
       let row = [];
 
@@ -11,6 +11,7 @@ const boardManger = function () {
       }
       board.push(row);
     }
+    return board;
   };
   //check if the board is full
   const isFull = (board) => {
@@ -36,8 +37,9 @@ const boardManger = function () {
     return false;
   };
   //delete the board
-  const deleteBoard = (board) => {
-    board = null;
+  const newBoard = (board) => {
+    let newBoard = createBoard();
+    board = structuredClone(newBoard);
   };
   //return
   return {
@@ -47,7 +49,7 @@ const boardManger = function () {
     isFull,
     checkEmpty,
     getEmptyCells,
-    deleteBoard,
+    newBoard,
   };
 };
 
@@ -112,15 +114,11 @@ const gameManager = () => {
   };
 
   //Implementing AI
-  const MAX_DEPTH = 10;
+  const MAX_DEPTH = 3;
   const minMax = (maxiMize, depth, board, boardManager) => {
     const winner = checkWinner("X", "O", board); //check for winning cases
-    let bestMoveRow = null;
-    let bestMoveCol = null;
-    const tempboard = [...board];
-
     //base case
-    if (boardManager.isFull(tempboard) || winner || depth === MAX_DEPTH) {
+    if (winner || depth == MAX_DEPTH) {
       if (winner == "O") {
         let score = maxiMize ? +1 : -1;
         return score;
@@ -131,7 +129,11 @@ const gameManager = () => {
         return score;
       }
     }
-    let emptyCells = boardManager.getEmptyCells(board);
+    let bestMoveRow = null;
+    let bestMoveCol = null;
+    const tempboard = [...board];
+
+    let emptyCells = boardManager.getEmptyCells(tempboard);
     let bestscore = maxiMize ? -Infinity : Infinity;
 
     for (let emptycells of emptyCells) {
@@ -151,11 +153,15 @@ const gameManager = () => {
     }
     return [bestMoveRow, bestMoveCol];
   };
-  const getTheNextMove = (active, depth = 0, board, boardManger) => {
-    const maxiMize = active == "X" ? true : false;
+  const getTheNextMove = (active, depth = 100, board, boardManger) => {
+    const maxiMize = active === "X";
     let tempboard = structuredClone(board);
 
     const bestMove = minMax(maxiMize, depth, tempboard, boardManger);
+    if (bestMove == -1 || bestMove == 1 || bestMove == 0) {
+      // Handle full board scenario (e.g., display message)
+      return "limit reached";
+    }
     return bestMove;
   };
   //return the functions
@@ -308,15 +314,7 @@ const UIManager = ((document) => {
     const board = createBoardUI();
     container.appendChild(board);
   };
-  //newGame callBack
-  const restartGame = () => {
-    let boardHTML = document.querySelector(".board");
-    if (boardHTML) {
-      boardHTML.remove();
-      inputUI.newGameMode();
-      board.deleteBoard(boardJS);
-    }
-  };
+
   //board callback
   let active = "X";
   let board = boardManger();
@@ -326,21 +324,41 @@ const UIManager = ((document) => {
   const cellsClicked = (e) => {
     let btn = e.target;
     let coordinate = btn.value.match(/\d+/g);
-
+    console.log(boardJS);
     if (computerMode) {
       if (active == "X") {
         click(coordinate, active, btn);
         changeActive();
         computerMove();
         changeActive();
+        checkWinner(boardJS);
+        let winner = game.checkWinner("X", "O", boardJS);
+        console.log(winner);
       }
     } else {
       //twoplayermode
     }
-    console.log(boardJS);
   };
+  //newGame callBack
+  const restartGame = () => {
+    let board = boardManger();
+    let boardHTML = document.querySelector(".board");
+    if (boardHTML) {
+      boardHTML.remove();
+      inputUI.newGameMode();
+      // Reset Board State
+      boardJS = structuredClone(board.createBoard()); // Create a new board
+      // Reset Active Player
+      active = "X";
+    }
+  };
+  //get computer move
   const computerMove = () => {
-    let move = game.getTheNextMove(active, 0, boardJS, board);
+    let move = game.getTheNextMove(active, undefined, boardJS, board);
+    if (move == "limit reached") {
+      console.log("AI can't move anymore!");
+      return;
+    }
     const [row, col] = move;
     click(move, active);
     let btnall = document.querySelectorAll(".board button");
@@ -351,22 +369,28 @@ const UIManager = ((document) => {
       }
     }
   };
+  //click to the boards both UI and backend board
   const click = (coordinate, symbol, button) => {
     if (button) {
       button.textContent = active;
       button.disabled = true;
     }
     let [row, col] = coordinate;
+    if (coordinate == "Tie") {
+      console.log("TIE");
+      return;
+    }
     boardJS[row][col].value = symbol;
   };
   //do the result
-  const checkWinner = () => {
+  const checkWinner = (board) => {
     let btnall = document.querySelectorAll(".board button");
-    let winner = game.checkWinner("X", "O", boardJS);
-    if (computerMode) {
+    let winner = game.checkWinner("X", "O", board);
+    if (computerMode && winner) {
       if (winner == "X") {
         showMessage("You Win!");
-      } else showMessage("You lose!");
+      } else if (winner == "O") showMessage("You lose!");
+      else showMessage("Tie!");
       btnall.forEach((e) => {
         e.disabled = true;
       });
