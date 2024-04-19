@@ -112,20 +112,18 @@ const gameManager = () => {
     };
     return players;
   };
-
   //Implementing AI
-  const MAX_DEPTH = 3;
   const minMax = (maxiMize, depth, board, boardManager) => {
     const winner = checkWinner("X", "O", board); //check for winning cases
     //base case
-    if (winner || depth == MAX_DEPTH) {
+    if (depth == 3 || winner) {
       if (winner == "O") {
-        let score = maxiMize ? +1 : -1;
+        let score = maxiMize ? +100 : -100;
         return score;
       } else if (winner == "Tie") {
         return 0;
       } else {
-        let score = maxiMize ? -1 : +1;
+        let score = maxiMize ? -100 : +100;
         return score;
       }
     }
@@ -140,7 +138,7 @@ const gameManager = () => {
       const [row, col] = emptycells;
       tempboard[row][col].value = maxiMize ? "O" : "X";
 
-      const score = minMax(!maxiMize, depth + 1, tempboard, boardManager);
+      let score = minMax(!maxiMize, depth + 1, tempboard, boardManager);
       if (maxiMize && score > bestscore) {
         bestscore = score;
         bestMoveRow = row;
@@ -153,12 +151,12 @@ const gameManager = () => {
     }
     return [bestMoveRow, bestMoveCol];
   };
-  const getTheNextMove = (active, depth = 100, board, boardManger) => {
+  const getTheNextMove = (active, depth = 0, board, boardManger) => {
     const maxiMize = active === "X";
     let tempboard = structuredClone(board);
 
     const bestMove = minMax(maxiMize, depth, tempboard, boardManger);
-    if (bestMove == -1 || bestMove == 1 || bestMove == 0) {
+    if (!isNaN(bestMove)) {
       // Handle full board scenario (e.g., display message)
       return "limit reached";
     }
@@ -179,8 +177,8 @@ const documentMock = (() => ({
 
 //UI Manager
 let game = gameManager();
+let users;
 const UIManager = ((document) => {
-  let users;
   //callback for the form
   const startTheGame = function (e) {
     e.preventDefault();
@@ -314,7 +312,6 @@ const UIManager = ((document) => {
     const board = createBoardUI();
     container.appendChild(board);
   };
-
   //board callback
   let active = "X";
   let board = boardManger();
@@ -324,19 +321,17 @@ const UIManager = ((document) => {
   const cellsClicked = (e) => {
     let btn = e.target;
     let coordinate = btn.value.match(/\d+/g);
-    console.log(boardJS);
+
     if (computerMode) {
-      if (active == "X") {
-        click(coordinate, active, btn);
-        changeActive();
-        computerMove();
-        changeActive();
-        checkWinner(boardJS);
-        let winner = game.checkWinner("X", "O", boardJS);
-        console.log(winner);
-      }
+      click(coordinate, active, btn);
+      changeActive();
+      computerMove();
+      changeActive();
+      checkWinner(boardJS);
     } else {
-      //twoplayermode
+      click(coordinate, active, btn);
+      changeActive();
+      checkWinner(boardJS);
     }
   };
   //newGame callBack
@@ -355,8 +350,8 @@ const UIManager = ((document) => {
   //get computer move
   const computerMove = () => {
     let move = game.getTheNextMove(active, undefined, boardJS, board);
+    //if ai can't move anymore
     if (move == "limit reached") {
-      console.log("AI can't move anymore!");
       return;
     }
     const [row, col] = move;
@@ -388,19 +383,21 @@ const UIManager = ((document) => {
     let winner = game.checkWinner("X", "O", board);
     if (computerMode && winner) {
       if (winner == "X") {
-        showMessage("You Win!");
+        winner = users.symbolToName[winner];
+        showMessage(`Congrats! ${winner} wins!`);
       } else if (winner == "O") showMessage("You lose!");
       else showMessage("Tie!");
       btnall.forEach((e) => {
         e.disabled = true;
       });
-    } else {
+    } else if (!computerMode) {
       if (winner == "X" || winner == "O") {
-        showMessage(winner);
+        winner = users.symbolToName[winner];
+        showMessage(`The Winner is ${winner}`);
         btnall.forEach((e) => {
           e.disabled = true;
         });
-      }
+      } else if (winner == "Tie") showMessage("It's a tie!");
     }
   };
   //changing turns fn
