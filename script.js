@@ -325,8 +325,10 @@ const UIManager = ((document) => {
     if (computerMode) {
       click(coordinate, active, btn);
       changeActive();
-      computerMove();
-      changeActive();
+      setTimeout(() => {
+        computerMove();
+        changeActive();
+      }, 700);
       checkWinner(boardJS);
     } else {
       click(coordinate, active, btn);
@@ -360,7 +362,9 @@ const UIManager = ((document) => {
     for (let btn of btnall) {
       if (btn.value === `[${row}][${col}]`) {
         btn.textContent = active;
+        btn.style.backgroundColor = "white";
         btn.disabled = true;
+        break;
       }
     }
   };
@@ -369,6 +373,12 @@ const UIManager = ((document) => {
     if (button) {
       button.textContent = active;
       button.disabled = true;
+      if (button.textContent == "X") {
+        button.style.backgroundColor = "white";
+        button.style.color = "red";
+      } else {
+        button.style.backgroundColor = "white";
+      }
     }
     let [row, col] = coordinate;
     if (coordinate == "Tie") {
