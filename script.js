@@ -251,7 +251,9 @@ const UIManager = ((document) => {
 
     let player1 = createElement("input", "player-name", "player1-name");
     let player2 = createElement("input", "player-name", "player2-name");
-    
+
+    window.setTimeout(() => player1.focus(), 0);
+
     player1.setAttribute("type", "text");
     player2.setAttribute("type", "text");
     player1.setAttribute("maxlength", "12");
@@ -292,6 +294,7 @@ const UIManager = ((document) => {
       player1Label.textContent = "Username";
       player1.setAttribute("placeholder", "Enter your username");
       player2.value = "Computer";
+      window.setTimeout(() => player1.focus(), 0);
     };
     const playerMode = () => {
       player2.style.display = "inline-block";
@@ -299,6 +302,7 @@ const UIManager = ((document) => {
       player1.setAttribute("placeholder", "Player1 Name");
       player1Label.textContent = "Player1";
       player2.value = "";
+      window.setTimeout(() => player1.focus(), 0);
     };
     const newGameMode = () => {
       restartGame();
