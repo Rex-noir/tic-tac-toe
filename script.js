@@ -251,13 +251,11 @@ const UIManager = ((document) => {
 
     let player1 = createElement("input", "player-name", "player1-name");
     let player2 = createElement("input", "player-name", "player2-name");
+    
     player1.setAttribute("type", "text");
     player2.setAttribute("type", "text");
     player1.setAttribute("maxlength", "12");
     player2.setAttribute("maxlength", "12");
-
-    player1.focus();
-    player2.focus();
 
     player1.setAttribute("placeholder", "Player1 Name");
     player2.setAttribute("placeholder", "Player2 Name");
