@@ -28,7 +28,7 @@ body {
   display: flex;
   justify-content: center;
   align-items: center;
-  background-image: url(assets/marita-kavelashvili-ugnrXk1129g-unsplash.jpg);
+  background-image: url(tic-tac-toe/assets/marita-kavelashvili-ugnrXk1129g-unsplash.jpg);
   background-size: cover;
   background-repeat: no-repeat;
 }
